@@ -308,3 +308,8 @@ kubectl apply -f Service.yaml
 Y accedemos a la IP de nuestro nodo de Kubernetes al puerto `32001`, por fin obtenemos el resultado buscado obteniendo un balanceo de carga Round Robin, cada nueva solicitud es asignada en orden secuencial y circular al siguiente Pod disponible del ***Deployment***
 
 ![Captura HTML Pods](resources/imgs/pods.png)
+
+### Referencias.
+
+- [Kubernetes](https://kubernetes.io/es/docs/concepts/)
+- [Kubernetes get the full pod name as environment variable](https://stackoverflow.com/questions/58101598/kubernetes-get-the-full-pod-name-as-environment-variable)
