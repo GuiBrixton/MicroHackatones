@@ -146,7 +146,7 @@ spec:
  ```
 Realizando ***Port Forwarding*** sobre el se observa que no realiza ningún tipo de balanceo a nivel de red si mantiene el número de replicas del Pod, pero si se elimina el pod sobre el que se ha establecido el ***Port Forwarding*** la conexión se viene a bajo.
 
-Se elimina el ***ReplicationController*** y se crea un ***ReplicaSet***, archivo ReplicaSet.yaml con resultado similar
+Se elimina el ***ReplicationController*** y se crea un ***ReplicaSet***, archivo `ReplicaSet.yaml` con resultado similar
 
 ```YAML
 apiVersion: apps/v1
@@ -266,8 +266,6 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-      nodePort: 32001
-  type: NodePort
 ```
 
 ```BASH
@@ -279,7 +277,7 @@ Aplicandola y realizando el correspondiente ***Port Forwarding***, el resultado 
 
 ***CONCLUSIÓN.-Port Forwarding es una castaña para realizar pruebas de carga y balanceo*** 
 
-Si actualizamos el ***Service*** a `NodePort` de la siguiente forma:
+Si actualizamos el ***Service*** a tipo `NodePort` de la siguiente forma:
 
 ```YAML
 apiVersion: v1
@@ -301,8 +299,12 @@ spec:
   type: NodePort
 ```
 
+Aplicamos los cambios
+
 ```BASH
 kubectl apply -f Service.yaml
 ```
 
-Y accedemos a la IP de nuestro nodo de Kubernetes al puerto `32001`, por fin obtenemos el resultado buscado obteniendo un balanceo de carga Round Robin, cada nueva solicitud es asignada secuencialmente al siguiente Pod disponible del ***Deployment*** en un orden circular.
+Y accedemos a la IP de nuestro nodo de Kubernetes al puerto `32001`, por fin obtenemos el resultado buscado obteniendo un balanceo de carga Round Robin, cada nueva solicitud es asignada en orden secuencial y circular al siguiente Pod disponible del ***Deployment***
+
+![Captura HTML Pods](resources/imgs/pods.png)

@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mh-caso1
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-html
+  namespace: mh-caso1
+data:
+  HTML1: "<html><br><H1><p style='text-align:center'>&iquest;Que hay de nuevo&#63;, &iexcl;Viejo&#33;</p></H1><H3><p style='text-align:center'>Desde <b>"
+  HTML2: "</b></p></H3></html>"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: alpine-pod
+  namespace: mh-caso1  
+spec:
+  containers:
+    - name: alpine-container
+      image: alpine:3.19.0
+      command: [ "/bin/sh", "-c", "while true; do { echo -e 'HTTP/1.1 200 OK\r\n'; echo $HTML1$HOSTNAME$HTML2;} | nc -l -p 8080; done" ]
+      ports:
+        - name: ncport
+          containerPort: 8080
+          protocol: TCP
+      envFrom:
+      - configMapRef:
+          name: env-html
+  restartPolicy: Never

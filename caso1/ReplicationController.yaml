@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+ name: alpine-rc
+ namespace: mh-caso1
+spec:
+ replicas: 3
+ selector:
+   app: alpine-netcat
+ template:
+   metadata:
+     name: alpine-pod
+     labels:
+       app: alpine-netcat
+   spec:
+     containers:
+       - name: alpine-container
+         image: alpine:3.19.0
+         command: [ "/bin/sh", "-c", "while true; do { echo -e 'HTTP/1.1 200 OK\r\n'; echo $HTML1$HOSTNAME$HTML2;} | nc -l -p 8080; done" ]
+         ports:
+           - name: ncport
+             containerPort: 8080
+             protocol: TCP
+         envFrom:
+         - configMapRef:
+             name: env-html
+     restartPolicy: Always
