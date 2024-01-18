@@ -1,13 +1,13 @@
-# MicroHackatones.
+# MicroHackatones
 
-## Caso1.
+## Caso1
 
-### Descripción.
+### Descripción
 
 Crear en Kubernetes un servicio que muestre una página web con el nombre del Pod que está corriendo  dicha página web.
 El contenido del html de la página web  se tiene que cargar  en el pod desde un recurso externo. Una vez este funcionado, aumentar el número de replicas del servicio a 3 y comprobar si existe algún tipo de balanceo (indicar cual es en caso afirmativo).
 
-### Tips.
+### Tips
 
 - Minikube
 - Pod
@@ -20,13 +20,13 @@ El contenido del html de la página web  se tiene que cargar  en el pod desde un
 - Environment Variables
 - PortForward
 
-### Procedimiento.
+### Procedimiento
 
-#### Imagen de contenedor.
+#### Imagen de contenedor
 
 Para la resolución del caso usaremos la imagen de contenedor **alpine:3.19.0** ubicada en [dockerhub](https://hub.docker.com/layers/library/alpine/3.19.0/images/sha256-13b7e62e8df80264dbb747995705a986aa530415763a6c58f84a3ca8af9a5bcd?context=explore).
 
-#### Netcat.
+#### Netcat
 
 Con **netcat**, `nc`, presente el la imagen de contenedor, podemos crear un pequeño servicio HTTP en el puerto que indiquemos. **NOTA.-** la versión que encontramos habitualmente en las distribuciones Linux es *openbsd-netcat*, mientras que Alpine usa *busybox*, de ahí la necesidad de especificar la opción `-p` para el puerto de servicio. Ejemplo.
 
@@ -42,15 +42,14 @@ El nombre del Pod coincide con la variable de entorno `HOSTNAME` del propio Pod,
 
 Usaremos como recurso externo un ConfigMap donde definimos el contenido de la página web en dos variables de entorno
 
- - `HTML1`
- - `HTML2`
+- `HTML1`
+- `HTML2`
 
  Para insertar entre ellas el nombre del pod con `HOSTNAME`
 
- #### Creación de los distintos elementos
+#### Creación de los distintos elementos
 
- En un único archivo **yaml** `caso-01.yaml`, definimos los tres elementos que vamos a usar, un nuevo *Namespace*, por poner un poco de orden,
- el *ConfigMap* con la definición de las variables de entorno `HTML1` y `HTML2`; y el pod con nuestra imagen de contenedor **alpine** donde ejecutamos el comando **netcat** `nc`.
+En un único archivo **yaml** `caso-01.yaml`, definimos los tres elementos que vamos a usar, un nuevo *Namespace*, por poner un poco de orden, el *ConfigMap* con la definición de las variables de entorno `HTML1` y `HTML2`; y el pod con nuestra imagen de contenedor **alpine** donde ejecutamos el comando **netcat** `nc`.
 
 ```YAML
 apiVersion: v1
@@ -86,6 +85,7 @@ spec:
           name: env-html
   restartPolicy: Never
 ```
+
 Aplicamos la configuración:
 
 ```BASH
@@ -100,7 +100,7 @@ kubectl -n mh-caso1 get pods
 
 Salida de ejemplo del comando anterior donde vemos el nombre del pod
 
-```
+```TEXT
 NAME         READY   STATUS    RESTARTS   AGE
 alpine-pod   1/1     Running   0          27m
 ```
@@ -111,12 +111,12 @@ kubectl -n mh-caso1 port-forward alpine-pod 8081:8080 &
 
 Nuestro Pod responde correctamente en ***<http://localhost:8080>***
 
- ### Aumentar el número de replicas del servicio
+### Aumentar el número de replicas del servicio
 
- Para aumentar el número de replicas del servicio a 3 se ha definido el siguiente ***ReplicationController*** en el archivo `ReplicationController.yaml`
+Para aumentar el número de replicas del servicio a 3 se ha definido el siguiente ***ReplicationController*** en el archivo `ReplicationController.yaml`
 
- ```YAML
- apiVersion: v1
+```YAML
+apiVersion: v1
 kind: ReplicationController
 metadata:
   name: alpine-rc
@@ -144,6 +144,7 @@ spec:
               name: env-html
       restartPolicy: Always
  ```
+
 Realizando ***Port Forwarding*** sobre el se observa que no realiza ningún tipo de balanceo a nivel de red si mantiene el número de replicas del Pod, pero si se elimina el pod sobre el que se ha establecido el ***Port Forwarding*** la conexión se viene a bajo.
 
 Se elimina el ***ReplicationController*** y se crea un ***ReplicaSet***, archivo `ReplicaSet.yaml` con resultado similar
@@ -222,14 +223,14 @@ spec:
           - configMapRef:
               name: env-html
       restartPolicy: Always
-```      
+```
 
 ```BASH
 kubectl apply -f Deployment.yaml
 kubectl -n mh-caso1 get all
 ```
 
-```
+```TEXT
 NAME                                    READY   STATUS    RESTARTS   AGE
 pod/alpine-deployment-5f75f8545-kd2bk   1/1     Running   0          83s
 pod/alpine-deployment-5f75f8545-nbcx5   1/1     Running   0          83s
@@ -241,11 +242,13 @@ deployment.apps/alpine-deployment   3/3     3            3           83s
 NAME                                          DESIRED   CURRENT   READY   AGE
 replicaset.apps/alpine-deployment-5f75f8545   3         3         3       83s
 ```
+
 A nivel de red el resultado es igual de desastroso si realizamos un ***Port Forwarding***
 
 ```BASH
 kubectl -n mh-caso1 port-forward deployment.apps/alpine-deployment 8081:8080
 ```
+
 Al eliminar el pod sobre el que el comando anterior ha realizado el ***Port Forwarding*** el servicio muere.
 
 En este punto manteniendo el ***Deployment*** se decide establecer un ***Service*** con la siguiente definición en el archivo `Service.yaml`
@@ -275,7 +278,7 @@ kubectl -n mh-caso1 port-forward service/netcat-srv 8081:8080
 
 Aplicandola y realizando el correspondiente ***Port Forwarding***, el resultado igual de desastroso  que en anteriores caso
 
-***CONCLUSIÓN.-Port Forwarding es una castaña para realizar pruebas de carga y balanceo*** 
+***CONCLUSIÓN.-Port Forwarding es una castaña para realizar pruebas de carga y balanceo***
 
 Si actualizamos el ***Service*** a tipo `NodePort` de la siguiente forma:
 
@@ -299,7 +302,9 @@ spec:
   type: NodePort
 ```
 
-Aplicamos los cambios
+La configuración del Service anterior se respalda en el archivo `Service.yaml-old`
+
+Aplicamos los cambios en *Service*
 
 ```BASH
 kubectl apply -f Service.yaml
@@ -309,7 +314,11 @@ Y accedemos a la IP de nuestro nodo de Kubernetes al puerto `32001`, por fin obt
 
 ![Captura HTML Pods](resources/imgs/pods.png)
 
-### Referencias.
+### Usando ConfigMap como recurso de archivo HTML
+
+Como alternativa, en lugar de definir el código HTML en dos variables de entorno dentro de un `ConfigMap` lo vamos a definir como un único archivo HTML, y ya puestos añadimos algo de contenido. Archivo `ConfigMapHTML.yaml`
+
+### Referencias
 
 - [Kubernetes](https://kubernetes.io/es/docs/concepts/)
 - [Kubernetes get the full pod name as environment variable](https://stackoverflow.com/questions/58101598/kubernetes-get-the-full-pod-name-as-environment-variable)
