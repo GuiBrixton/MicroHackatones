@@ -386,7 +386,7 @@ Creamos el ***namespace*** `mh-caso1`
 ```BASH
 kubectl create namespace mh-caso1 
 ```
-Creamos el nuestro ***ConfigMap*** de archivo
+Creamos nuestro ***ConfigMap*** de archivo
 
 ```BASH
 kubectl apply -f htmlConfigMap.yaml
