@@ -410,6 +410,7 @@ Comprobamos el estado de los Pods
 kubectl -n mh-caso1 get pods
 ```
 
+Accediendo a a la ip de nuestro nodo puerto **23001** en un navegador podemos ver el resultado, recargando la página obtendremos los nombres de los distintos Pods. `http://IP_NODO:23001`
 ![Captura HTML murciélago](resources/imgs/capturamurcielago.png)
 
 ### TODO
