@@ -328,7 +328,7 @@ data:
   index.html: |
     <html>      
       Se omite el resto del archivo html...
-    <html>
+    </html>
 ```
 
 Y creamos un nuevo ***Deployment*** `DeploymentFinal.yaml` donde usamos este nuevo ***ConfigMap***.
