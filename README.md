@@ -319,9 +319,19 @@ Y accedemos a la IP de nuestro nodo de Kubernetes al puerto `32001`, por fin obt
 Como alternativa, en lugar de definir el código HTML en dos variables de entorno dentro de un ***ConfigMap*** lo vamos a definir como un único archivo HTML, y ya puestos añadimos algo de contenido. Archivo `htmlConfigMap.yaml` para este nuevo ***ConfigMap***
 
 ```YAML
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: page-html
+  namespace: mh-caso1
+data:
+  index.html: |
+    <html>      
+      Se omite el resto del archivo html...
+    <html>
 ```
 
-Y Creamos un nuevo ***Deployment*** `DeploymentFinal.yaml` donde usamos este nuevo ***ConfigMap***.
+Y creamos un nuevo ***Deployment*** `DeploymentFinal.yaml` donde usamos este nuevo ***ConfigMap***.
 
 ```YAML
 apiVersion: apps/v1
@@ -361,8 +371,78 @@ spec:
       restartPolicy: Always
 ```
 
+### Resumen
+
+Con la siguiente secuencia de comandos podemos desplegar rápidamente este caso. **NOTA.-** Debemos asegurarnos de encontramos en la ruta correcta, donde estén nuestros archivos yaml
+
+Limpiar el entorno
+
+```BASH
+kubectl delete namespace mh-caso1 
+```
+
+Creamos el ***namespace*** `mh-caso1`
+
+```BASH
+kubectl create namespace mh-caso1 
+```
+Creamos el nuestro ***ConfigMap*** de archivo
+
+```BASH
+kubectl apply -f htmlConfigMap.yaml
+```
+
+Creamos el ***Deployment***
+
+```BASH
+kubectl apply -f DeploymentFinal.yaml
+```
+
+Por ultimo creamos el servicio
+
+```BASH
+kubectl apply -f Service.yaml
+```
+
+Comprobamos el estado de los Pods
+
+```BASH
+kubectl -n mh-caso1 get pods
+```
+
+![Captura HTML murciélago](resources/imgs/capturamurcielago.png)
+
+### TODO
+
+Cambiar el número de Pods en ejecución
+
+```BASH
+kubectl -n mh-caso1  scale --replicas=5  deployment.apps/alpine-deployment
+kubectl -n mh-caso1 ger all
+```
+
+```TEXT
+NAME                                    READY   STATUS    RESTARTS   AGE
+pod/alpine-deployment-686755d64-65pj4   1/1     Running   0          53s
+pod/alpine-deployment-686755d64-h8jn4   1/1     Running   0          11m
+pod/alpine-deployment-686755d64-klvl2   1/1     Running   0          11m
+pod/alpine-deployment-686755d64-l7m8n   1/1     Running   0          11m
+pod/alpine-deployment-686755d64-lxcr9   1/1     Running   0          53s
+
+NAME                 TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+service/netcat-srv   NodePort   10.100.121.245   <none>        8080:32001/TCP   10m
+
+NAME                                READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/alpine-deployment   5/5     5            5           11m
+
+NAME                                          DESIRED   CURRENT   READY   AGE
+replicaset.apps/alpine-deployment-686755d64   5         5         5       11m
+```
+
+
 ### Referencias
 
 - [Kubernetes](https://kubernetes.io/es/docs/concepts/)
 - [Kubernetes get the full pod name as environment variable](https://stackoverflow.com/questions/58101598/kubernetes-get-the-full-pod-name-as-environment-variable)
 - [Using ConfigMaps as files from a Pod ](https://kubernetes.io/docs/concepts/configuration/configmap/#using-configmaps-as-files-from-a-pod)
+- [How to make a webserver with netcat (nc)](https://jameshfisher.com/2018/12/31/how-to-make-a-webserver-with-netcat-nc/)
