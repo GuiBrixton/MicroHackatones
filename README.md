@@ -316,9 +316,53 @@ Y accedemos a la IP de nuestro nodo de Kubernetes al puerto `32001`, por fin obt
 
 ### Usando ConfigMap como recurso de archivo HTML
 
-Como alternativa, en lugar de definir el código HTML en dos variables de entorno dentro de un `ConfigMap` lo vamos a definir como un único archivo HTML, y ya puestos añadimos algo de contenido. Archivo `ConfigMapHTML.yaml`
+Como alternativa, en lugar de definir el código HTML en dos variables de entorno dentro de un ***ConfigMap*** lo vamos a definir como un único archivo HTML, y ya puestos añadimos algo de contenido. Archivo `htmlConfigMap.yaml` para este nuevo ***ConfigMap***
+
+```YAML
+```
+
+Y Creamos un nuevo ***Deployment*** `DeploymentFinal.yaml` donde usamos este nuevo ***ConfigMap***.
+
+```YAML
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alpine-deployment
+  namespace: mh-caso1
+  labels:
+    app: alpine-netcat
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: alpine-netcat
+  template:
+    metadata:
+      name: alpine-pod
+      labels:
+        app: alpine-netcat
+    spec:
+      containers:
+        - name: alpine-container
+          image: alpine:3.19.0
+          command: [ "/bin/sh", "-c", "apk add envsubst && while true; do { echo -e 'HTTP/1.1 200 OK\r\n'; envsubst < /data/index.html; } | nc -l -p 8080; done" ]
+          ports:
+            - name: ncport
+              containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: html-index-file
+              mountPath: /data
+      volumes:
+        - name: html-index-file
+          configMap:
+            name: page-html
+      restartPolicy: Always
+```
 
 ### Referencias
 
 - [Kubernetes](https://kubernetes.io/es/docs/concepts/)
 - [Kubernetes get the full pod name as environment variable](https://stackoverflow.com/questions/58101598/kubernetes-get-the-full-pod-name-as-environment-variable)
+- [Using ConfigMaps as files from a Pod ](https://kubernetes.io/docs/concepts/configuration/configmap/#using-configmaps-as-files-from-a-pod)

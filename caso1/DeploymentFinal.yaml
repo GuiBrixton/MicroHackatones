@@ -20,12 +20,16 @@ spec:
       containers:
         - name: alpine-container
           image: alpine:3.19.0
-          command: [ "/bin/sh", "-c", "while true; do { echo -e 'HTTP/1.1 200 OK\r\n'; echo $HTML1$HOSTNAME$HTML2;} | nc -l -p 8080; done" ]
+          command: [ "/bin/sh", "-c", "apk add envsubst && while true; do { echo -e 'HTTP/1.1 200 OK\r\n'; envsubst < /data/index.html; } | nc -l -p 8080; done" ]
           ports:
             - name: ncport
               containerPort: 8080
               protocol: TCP
-          envFrom:
-          - configMapRef:
-              name: env-html
+          volumeMounts:
+            - name: html-index-file
+              mountPath: /data
+      volumes:
+        - name: html-index-file
+          configMap:
+            name: page-html
       restartPolicy: Always
