@@ -419,7 +419,7 @@ Cambiar el número de Pods en ejecución
 
 ```BASH
 kubectl -n mh-caso1  scale --replicas=5  deployment.apps/alpine-deployment
-kubectl -n mh-caso1 ger all
+kubectl -n mh-caso1 get all
 ```
 
 ```TEXT
