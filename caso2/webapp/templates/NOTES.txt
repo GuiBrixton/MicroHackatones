@@ -1,0 +1,16 @@
+Gracias por instalar {{ .Chart.Name }}.
+
+El nombre de la 'release' instalada es {{ .Release.Name }}.
+
+Opten más información sobre ella ejecutando:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+Para obtener acceso a la aplicación mediante Port Forwarding:
+
+  $ kubectl --namespace {{ .Release.Namespace }} port-forward service/{{ .Values.app.name }}{{ .Values.app.suffix }} XXXXX:{{ .Values.service.port }}
+
+Donde XXXXX es un número entre 49152–65535, puertos efímeros, dinámicos o privados, procura ¡que esté libre!
+
+http://localhost:XXXXX

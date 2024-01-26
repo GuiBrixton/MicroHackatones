@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.app.name }}{{ .Values.app.suffix }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}{{ .Values.app.suffix }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}{{ .Values.app.suffix }}
+    spec:
+      containers:
+      - name: {{ .Values.app.name }}{{ .Values.app.suffix }}
+        image: paulbouwer/hello-kubernetes:1.8
+        ports:
+        - containerPort: {{ .Values.container.port }}
+        env:
+        - name: MESSAGE
+          value: {{ .Values.container.message.part1 }}{{ .Release.Name }}{{ .Values.container.message.part2 }}{{ .Chart.Name }}
+        - name: PORT
+          value: {{ .Values.container.port | quote }}

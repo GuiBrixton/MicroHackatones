@@ -1,0 +1,19 @@
+# Default values for webapp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+app:
+  name: webapp
+  suffix: 1969
+
+service:
+  type: LoadBalancer
+  port: 8081
+
+container:
+  port: 8081
+  message:
+    part1: '¿Que hay de nuevo Viejo?  Soy la release "'
+    part2: '" del Chart de Helm '

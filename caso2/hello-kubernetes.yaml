@@ -1,0 +1,44 @@
+# hello-kubernetes.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: mh-caso2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-kubernetes
+  namespace: mh-caso2
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 8081
+  selector:
+    app: hello-kubernetes
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-kubernetes
+  namespace: mh-caso2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-kubernetes
+  template:
+    metadata:
+      labels:
+        app: hello-kubernetes
+    spec:
+      containers:
+      - name: hello-kubernetes
+        image: paulbouwer/hello-kubernetes:1.8
+        ports:
+        - containerPort: 8081
+        env:
+        - name: MESSAGE
+          value: Desde Kubernetes, ¿Que hay de nuevo Viejo?
+        - name: PORT
+          value: "8081"
