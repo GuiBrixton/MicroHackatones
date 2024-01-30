@@ -1,0 +1,130 @@
+pipeline {
+    agent any
+
+    environment {
+        PATH = "${tool 'Maven'}/bin:${env.PATH}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code...'
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo 'Building the application...'
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                echo 'Running unit tests...'
+                sh 'mvn test'
+            }
+        }
+
+        stage('Code Quality Checks') {
+            steps {
+                echo 'Running code quality checks...'
+                // Comandos para ejecutar herramientas de análisis estático de código (por ejemplo, SonarQube)
+            }
+        }
+
+        stage('Integration Tests') {
+            steps {
+                echo 'Running integration tests...'
+                // Comandos para ejecutar pruebas de integración
+            }
+        }
+
+        stage('Security Scans') {
+            steps {
+                echo 'Running security scans...'
+                // Comandos para ejecutar análisis de seguridad (por ejemplo, OWASP Dependency-Check)
+            }
+        }
+
+        stage('Deploy to Staging') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                echo 'Deploying to staging environment...'
+                // Comandos para desplegar en un entorno de staging
+            }
+        }
+
+        stage('Automated Acceptance Tests') {
+            when {
+                branch 'develop'
+            }
+            steps {
+                echo 'Running automated acceptance tests...'
+                // Comandos para ejecutar pruebas de aceptación automáticas
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'master'
+            }
+            steps {
+                echo 'Deploying to production environment...'
+                // Comandos para desplegar en un entorno de producción
+            }
+        }
+
+        stage('Manual Approval') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'master'
+                }
+            }
+            steps {
+                echo 'Waiting for manual approval...'
+                // Agregar pasos para notificar y esperar la aprobación manual
+            }
+        }
+
+        stage('Promote to Next Release') {
+            when {
+                expression {
+                    return env.BRANCH_NAME == 'develop' && currentBuild.resultIsBetterThan('SUCCESS')
+                }
+            }
+            steps {
+                echo 'Promoting code to the next release...'
+                // Agregar pasos para promover el código a la siguiente release (por ejemplo, fusionar con la rama de release)
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                echo 'Archiving artifacts...'
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                // Archivar artefactos generados durante la compilación (ajustar según tu estructura de proyecto y artefactos)
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+            // Agregar pasos de limpieza si es necesario
+        }
+
+        success {
+            echo 'Pipeline succeeded!'
+            // Pasos adicionales en caso de éxito
+        }
+
+        failure {
+            echo 'Pipeline failed. Check the logs for details.'
+            // Pasos adicionales en caso de fallo
+        }
+    }
+}
