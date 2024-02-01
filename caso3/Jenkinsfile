@@ -138,7 +138,7 @@ pipeline {
                     install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
                     kubectl version --client --output=yaml
                     apk add helm
-                    kubectl delete namespace mh-caso2
+                    kubectl delete namespace mh-caso2 || echo "no pasa nada, se ve que no existe en namespace mh-caso2"
                     helm install webapp1969 ./MikroHackatones/caso2/webapp --create-namespace --namespace mh-caso2
                 '''
             }
