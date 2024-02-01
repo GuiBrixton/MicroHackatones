@@ -3,25 +3,22 @@ pipeline {
         kubernetes { yaml '''
         apiVersion: v1
         kind: Pod
-        metadata:
-          labels:
-            description: containers-for-jenkins-agent
         spec:
-        containers:
-        - name: alpine
-          image: alpine:3.19.1
-          command:
-          - sleep
-          args:
-          - infinity
-          volumeMounts:
+          containers:
+          - name: alpine
+            image: alpine:3.19.1
+            command:
+            - sleep
+            args:
+            - infinity
+            volumeMounts:
+            - name: kubeconfig-volume
+              readOnly: true
+              mountPath: "/kubeconfig"
+          volumes:
           - name: kubeconfig-volume
-          readOnly: true
-          mountPath: "/kubeconfig"
-        volumes:
-        - name: kubeconfig-volume
-          secret:
-          secretName: kubeconfig-secret
+            secret:
+              secretName: kubeconfig-secret
         '''
         defaultContainer 'alpine'
         }
