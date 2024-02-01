@@ -139,7 +139,7 @@ pipeline {
                     kubectl version --client --output=yaml
                     apk add helm
                     kubectl delete namespace mh-caso2
-                    helm install webapp1969 ./MikroHackkatones/caso2/webapp --create-namespace --namespace mh-caso2
+                    helm install webapp1969 ./MikroHackatones/caso2/webapp --create-namespace --namespace mh-caso2
                 '''
             }
         }
