@@ -35,6 +35,7 @@ pipeline {
                 sh '''
                     apk add git
                     git clone https://github.com/antoniollv/MicroHackatones.git
+                    env
                 '''
             }
         }
@@ -125,7 +126,7 @@ pipeline {
 
         stage('Deploy to Production') {
             when {
-                branch 'master'
+                branch 'main'
             }
             steps {
                 echo 'Deploying to production environment...'
