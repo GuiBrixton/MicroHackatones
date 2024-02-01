@@ -6,7 +6,6 @@ pipeline {
         metadata:
           labels:
             description: containers-for-jenkins-agent
-          namespace: mh-caso3
         spec:
         containers:
         - name: alpine
