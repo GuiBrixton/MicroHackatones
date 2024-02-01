@@ -1,72 +1,78 @@
 pipeline {
-     kubernetes {
-      yaml '''
+    agent{
+        kubernetes { yaml '''
         apiVersion: v1
         kind: Pod
         metadata:
           labels:
-            some-label: some-label-value
+            description: containers-for-jenkins-agent
+          namespace: mh-caso3
         spec:
-          containers:
-          - name: maven
-            image: maven:alpine
-            command:
-            - cat
-            tty: true
-          - name: busybox
-            image: busybox
-            command:
-            - cat
-            tty: true
+        containers:
+        - name: alpine
+          image: alpine:3.19.1
+          command:
+          - sleep
+          args:
+          - infinity
+          volumeMounts:
+          - name: kubeconfig-volume
+          readOnly: true
+          mountPath: "/kubeconfig"
+        volumes:
+        - name: kubeconfig-volume
+          secret:
+          secretName: kubeconfig-secret
         '''
-      retries 2
+        defaultContainer 'alpine'
+        }
     }
-  }
 
     environment {
-        PATH = "${tool 'Maven'}/bin:${env.PATH}"
+        KUBECONFIG=="/kubeconfig/.kubeconfig"
     }
 
     stages {
         stage('Checkout') {
             steps {
                 echo 'Checking out code...'
-                checkout scm
+                sh '''
+                    apk add git
+                    git clone https://github.com/antoniollv/MicroHackatones.git
+                '''
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Building the application...'
-                sh 'mvn clean install'
+                echo 'Building the application...como "mvn clean install"'
             }
         }
 
         stage('Unit Tests') {
             steps {
-                echo 'Running unit tests...'
-                sh 'mvn test'
+                echo 'Running unit tests...ejemplo "mvn test"'
             }
         }
 
         stage('Code Quality Checks') {
             steps {
                 echo 'Running code quality checks...'
-                // Comandos para ejecutar herramientas de análisis estático de código (por ejemplo, SonarQube)
+                echo 'Comandos para ejecutar herramientas de análisis estático de código, por ejemplo, SonarQube'
             }
         }
 
         stage('Integration Tests') {
             steps {
                 echo 'Running integration tests...'
-                // Comandos para ejecutar pruebas de integración
+                echo 'Pruebas de integración, como Selenium pra aplicaciones basadas en la web o Postman para APIs...'
             }
         }
 
         stage('Security Scans') {
             steps {
                 echo 'Running security scans...'
-                // Comandos para ejecutar análisis de seguridad (por ejemplo, OWASP Dependency-Check)
+                echo '/ Comandos para ejecutar análisis de seguridad por ejemplo, OWASP Dependency-Check'
             }
         }
 
@@ -76,27 +82,16 @@ pipeline {
             }
             steps {
                 echo 'Deploying to staging environment...'
-                // Comandos para desplegar en un entorno de staging
+                echo 'Comandos para desplegar en un entorno de staging'
             }
         }
 
-        stage('Automated Acceptance Tests') {
+        stage('Acceptance Tests') {
             when {
                 branch 'develop'
             }
             steps {
-                echo 'Running automated acceptance tests...'
-                // Comandos para ejecutar pruebas de aceptación automáticas
-            }
-        }
-
-        stage('Deploy to Production') {
-            when {
-                branch 'master'
-            }
-            steps {
-                echo 'Deploying to production environment...'
-                // Comandos para desplegar en un entorno de producción
+                echo 'Running automated acceptance tests...Estas nos se como se hacen autumáticas'
             }
         }
 
@@ -108,7 +103,7 @@ pipeline {
             }
             steps {
                 echo 'Waiting for manual approval...'
-                // Agregar pasos para notificar y esperar la aprobación manual
+                echo ' Agregar pasos para notificar y esperar la aprobación manual'
             }
         }
 
@@ -120,17 +115,38 @@ pipeline {
             }
             steps {
                 echo 'Promoting code to the next release...'
-                // Agregar pasos para promover el código a la siguiente release (por ejemplo, fusionar con la rama de release)
+                echo 'Agregar pasos para promover el código a la siguiente release por ejemplo, fusionar con la rama de release'
             }
         }
 
         stage('Archive Artifacts') {
             steps {
                 echo 'Archiving artifacts...'
-                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
-                // Archivar artefactos generados durante la compilación (ajustar según tu estructura de proyecto y artefactos)
+                echo 'Archivar artefactos generados durante la compilación'
+                echo' Ejemplo: archiveArtifacts artifacts: "target/*.jar", fingerprint: true'
             }
         }
+
+        stage('Deploy to Production') {
+            when {
+                branch 'master'
+            }
+            steps {
+                echo 'Deploying to production environment...'
+                sh '''
+                    apk add curl
+                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+                    echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c
+                    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+                    kubectl version --client --output=yaml
+                    apk add helm
+                    kubectl delete namespace mh-caso2
+                    helm install webapp1969 ./MikroHackkatones/caso2/webapp --create-namespace --namespace mh-caso2
+                '''
+            }
+        }
+
     }
 
     post {

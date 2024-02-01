@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: containers-for-jenkins-agent
+  namespace: mh-caso3
+spec:
+  containers:
+  - name: alpine
+    image: alpine:3.19.1
+    command:
+    - sleep
+    args:
+    - infinity
+    volumeMounts:
+    - name: kubeconfig-volume
+      readOnly: true
+      mountPath: "/kubeconfig"
+  volumes:
+  - name: kubeconfig-volume
+    secret:
+      secretName: kubeconfig-secret
