@@ -162,7 +162,7 @@ Todo correcto hasta ahora, sigamos avanzando.
 
 ## Crear el ***helm charm*** solicitado
 
-Creamos un ***helm charm***
+Creamos un ***helm charm*** 
 
 ```BASH
 helm create webapp
@@ -343,7 +343,7 @@ helm install webapp1974 ./webapp --namespace mh-caso2 --set app.suffix=1974 --se
 ```
 
 Para la tercera aumentaremos el número de replicas
-
+    
 ```BASH
 helm install webapp2004 ./webapp --namespace mh-caso2 --set app.suffix=2004 --set service.port=8083 --set container.message.part1='Aquí la tercera release "' --set replicaCount=2
 ```
