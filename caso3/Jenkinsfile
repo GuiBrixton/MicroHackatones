@@ -112,7 +112,8 @@ pipeline {
             }
             steps {
                 echo 'Promoting code to the next release...'
-                echo 'Agregar pasos para promover el código a la siguiente release por ejemplo, fusionar con la rama de release'
+                echo 'Agregar pasos para promover el código a la siguiente release por ejemplo,\
+                      fusionar con la rama de release'
             }
         }
 
@@ -131,21 +132,19 @@ pipeline {
             steps {
                 echo 'Deploying to production environment...'
                 sh '''
-                    apk add curl
-                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                    curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-                    echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c
-                    install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-                    kubectl version --client --output=yaml
-                    apk add helm
-                    kubectl delete namespace mh-caso2 || echo "no pasa nada, se ve que no existe en namespace mh-caso2"
-                    helm install webapp1969 ./MicroHackatones/caso2/webapp --create-namespace --namespace mh-caso2
-                '''
+apk add curl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+echo "$(cat kubectl.sha256)  kubectl" | sha256sum -c
+install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+kubectl version --client --output=yaml
+apk add helm
+kubectl delete namespace mh-caso2 || echo "no pasa nada, se ve que no existe en namespace mh-caso2"
+helm install webapp1969 ./MicroHackatones/caso2/webapp --create-namespace --namespace mh-caso2
+'''
             }
         }
-
     }
-
     post {
         always {
             echo 'Cleaning up...'
