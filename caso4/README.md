@@ -31,13 +31,13 @@ En la actualidad, una de las prácticas más comunes en el mundo del desarrollo 
 
 ### 1. Instalando *Jenkins Template Engine*
 
-*Jenkins Templating Engine* (JTE), se encuentra como *Templating Engine* en Jenkins en `Administrar Jenkins > Plugins `
+*Jenkins Templating Engine* (JTE), se encuentra como *Templating Engine* en Jenkins en `Administrar Jenkins > Plugins`
 
 Si no esta instalado seleccionar `Available plugins`, marcarlo y `botón Install`, esto instalar el plugin y sus dependencias. Reiniciar Jenkins en caso de ser necesario
 
 ### 2. Validando la instalación
 
-Para llevar a cabo una validación simple de la instalación  creamos un *Pipeline JTE* 
+Para llevar a cabo una validación simple de la instalación  creamos un *Pipeline JTE*
 
 - Desde la página de inicio de Jenkins, `+ Nueva Tarea` en el menú de navegación de la izquierda.
 - Establecemos un nombre para la tarea, ***validarJTE***, por ejemplo
@@ -48,8 +48,8 @@ A continuación configuramos el *Pipeline*
 
 Por defecto en la sección `Pipeline` `Definition` aparecerá  con el valor `Jenkins Template Engine`, eso confirmará ña correcta configuración del plugin.
 
- - Activar la casilla `Provide default pipeline template (Jenkinsfile)`
- - E introducir en el área de texto Jenkinsfile el siguiente código
+- Activar la casilla `Provide default pipeline template (Jenkinsfile)`
+- E introducir en el área de texto Jenkinsfile el siguiente código
 
    ```GROOVY
    podTemplate(yaml: '''
@@ -61,6 +61,7 @@ Por defecto en la sección `Pipeline` `Definition` aparecerá  con el valor `Jen
          image: maven:latest
          command: ["/bin/sh"]
          args: ["-c", "sleep 1000"]
+
       '''){
       node(POD_LABEL) {
          container('maven') {
@@ -88,6 +89,7 @@ Por defecto en la sección `Pipeline` `Definition` aparecerá  con el valor `Jen
    [Pipeline] End of Pipeline
    Finished: SUCCESS
   ```
+
 Siguientes pasos <https://jenkinsci.github.io/templating-engine-plugin/2.5.3/tutorials/jte-the-basics/1-prerequisites/>
 
 ## Referencias
